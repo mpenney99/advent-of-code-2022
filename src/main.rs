@@ -1,7 +1,9 @@
-mod day1;
-mod day2;
 mod utils;
 
+mod day1;
+mod day2;
+mod day3;
+
 fn main() {
-    day2::run();
+    day3::problem2();
 }
