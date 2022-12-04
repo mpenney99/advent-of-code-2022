@@ -1,7 +1,7 @@
 
 use crate::utils::*;
 
-pub fn run() {
+pub fn problem2() {
     let mut values: Vec<u32> = Vec::new();
     let mut current: u32 = 0;
 

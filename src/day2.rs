@@ -65,7 +65,7 @@ fn player_shape(opp_shape: &Shape, input: &str) -> Shape {
     }).unwrap()
 }
 
-pub fn run() {
+pub fn problem2() {
     let mut total_score: u32 = 0;
 
     read_lines("./src/day2_input")
