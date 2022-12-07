@@ -1,6 +1,6 @@
 use std::{
     cell::RefCell,
-    rc::{Rc, Weak}, ops::Deref,
+    rc::{Rc, Weak},
 };
 
 use crate::utils::*;
@@ -44,8 +44,8 @@ fn read_file_tree() -> Rc<Node> {
                         ".." => {
                             let curr_dir = current_dir.upgrade().unwrap();
                             let parent = curr_dir.parent.borrow();
-                            if let Some(p) = parent.deref() {
-                                current_dir = p.clone();
+                            if let Some(p) = &*parent {
+                                current_dir = Weak::clone(p);
                             }
                         }
                         _ => {
@@ -67,12 +67,12 @@ fn read_file_tree() -> Rc<Node> {
             }
         } else if is_listing {
             let size: u32 = parts[0].parse().unwrap_or(0);
-            
+
             let node = Node {
                 name: parts[1].to_string(),
                 size,
                 children: RefCell::new(Vec::new()),
-                parent: RefCell::new(Some(current_dir.clone())),
+                parent: RefCell::new(Some(Weak::clone(&current_dir))),
             };
 
             let curr_dir = current_dir.upgrade().unwrap();
@@ -89,14 +89,12 @@ fn read_file_tree() -> Rc<Node> {
 fn get_dir_sizes(node: &Node, dir_sizes: &mut Vec<u32>) -> u32 {
     let children = node.children.borrow();
     if children.len() == 0 {
-        node.size
-    } else {
-        let size = children.iter().fold(node.size, |acc, c| {
-            acc + get_dir_sizes(c, dir_sizes)
-        });
-        dir_sizes.push(size);
-        size
+        return node.size
     }
+    
+    let size = children.iter().fold(node.size, |acc, c| acc + get_dir_sizes(c, dir_sizes));
+    dir_sizes.push(size);
+    size
 }
 
 pub fn problem1() {

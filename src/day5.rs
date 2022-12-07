@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use regex::Regex;
-use std::{fs, io};
+use std::{fs, io, cell::RefCell};
 
 use crate::utils::*;
 
@@ -27,27 +27,24 @@ static RE_COMMAND: Lazy<Regex> =
  * 1   2   3   4   5   6   7   8   9
  */
 
-fn stacks() -> Vec<Vec<&'static str>> {
+fn stacks() -> Vec<RefCell<Vec<&'static str>>> {
     vec![
-        vec!["B", "V", "S", "N", "T", "C", "H", "Q"],
-        vec!["W", "D", "B", "G"],
-        vec!["F", "W", "R", "T", "S", "Q", "B"],
-        vec!["L", "G", "W", "S", "Z", "J", "D", "N"],
-        vec!["M", "P", "D", "V", "F"],
-        vec!["F", "W", "J"],
-        vec!["L", "N", "Q", "B", "J", "V"],
-        vec!["G", "T", "R", "C", "J", "Q", "S", "N"],
-        vec!["J", "S", "Q", "C", "W", "D", "M"],
+        RefCell::new(vec!["B", "V", "S", "N", "T", "C", "H", "Q"]),
+        RefCell::new(vec!["W", "D", "B", "G"]),
+        RefCell::new(vec!["F", "W", "R", "T", "S", "Q", "B"]),
+        RefCell::new(vec!["L", "G", "W", "S", "Z", "J", "D", "N"]),
+        RefCell::new(vec!["M", "P", "D", "V", "F"]),
+        RefCell::new(vec!["F", "W", "J"]),
+        RefCell::new(vec!["L", "N", "Q", "B", "J", "V"]),
+        RefCell::new(vec!["G", "T", "R", "C", "J", "Q", "S", "N"]),
+        RefCell::new(vec!["J", "S", "Q", "C", "W", "D", "M"]),
     ]
 }
 
 fn parse_commands(it: &mut io::Lines<io::BufReader<fs::File>>) -> Vec<Command> {
     it.map(|line| {
         let text = line.unwrap();
-        let Some(captures) = RE_COMMAND.captures(&text) else {
-            panic!("invalid command: {}", text);
-        };
-
+        let captures = RE_COMMAND.captures(&text).expect("invalid command");
         let amount: usize = captures.get(1).unwrap().as_str().parse().unwrap();
         let from: usize = captures.get(2).unwrap().as_str().parse().unwrap();
         let to: usize = captures.get(3).unwrap().as_str().parse().unwrap();
@@ -56,7 +53,7 @@ fn parse_commands(it: &mut io::Lines<io::BufReader<fs::File>>) -> Vec<Command> {
     .collect()
 }
 
-fn problem(exec_command: fn(&mut Vec<Vec<&str>>, command: &Command)) {
+fn problem(exec_command: fn(&mut Vec<RefCell<Vec<&str>>>, command: &Command)) {
     let mut lines = read_lines("./src/day5_input");
     let mut stacks = stacks();
     let commands = parse_commands(&mut lines);
@@ -67,7 +64,7 @@ fn problem(exec_command: fn(&mut Vec<Vec<&str>>, command: &Command)) {
 
     let result = stacks
         .into_iter()
-        .map(|stack| stack.last().unwrap().to_string())
+        .map(|stack| stack.borrow().last().unwrap().to_string())
         .collect::<String>();
 
     println!("{}", result);
@@ -75,13 +72,12 @@ fn problem(exec_command: fn(&mut Vec<Vec<&str>>, command: &Command)) {
 
 pub fn problem1() {
     problem(|stacks, command| {
+        let mut from_stack =  stacks.get(command.from - 1).expect("invalid index").borrow_mut();
+        let mut to_stack = stacks.get(command.to - 1).expect("invalid index").borrow_mut();
+
         for _ in 0..command.amount {
-            if let Some(from_stack) = stacks.get_mut(command.from - 1) {
-                if let Some(item) = from_stack.pop() {
-                    if let Some(to_stack) = stacks.get_mut(command.to - 1) {
-                        to_stack.push(item);
-                    }
-                }
+            if let Some(item) = from_stack.pop() {
+                to_stack.push(item);
             }
         }
     });
@@ -89,20 +85,16 @@ pub fn problem1() {
 
 pub fn problem2() {
     problem(|stacks, command| {
+        let mut from_stack =  stacks.get(command.from - 1).expect("invalid index").borrow_mut();
+        let mut to_stack = stacks.get(command.to - 1).expect("invalid index").borrow_mut();
+
         let mut items: Vec<&str> = Vec::new();
-
-        if let Some(from_stack) = stacks.get_mut(command.from - 1) {
-            for _ in 0..command.amount {
-                if let Some(item) = from_stack.pop() {
-                    items.push(item);
-                }
+        for _ in 0..command.amount {
+            if let Some(item) = from_stack.pop() {
+                items.push(item);
             }
         }
 
-        if let Some(to_stack) = stacks.get_mut(command.to - 1) {
-            while let Some(item) = items.pop() {
-                to_stack.push(item);
-            }
-        }
+        to_stack.extend(items);
     });
 }
