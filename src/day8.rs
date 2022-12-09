@@ -4,7 +4,7 @@ use crate::utils::*;
 
 fn read_input() -> Vec<Vec<i32>> {
     read_lines("./src/day8_input").map(|line| {
-        line.expect("cannot read line").chars().map(|c| {
+        line.chars().map(|c| {
             c.to_string().parse::<i32>().expect("not a number")
         }).collect()
     }).collect()
@@ -61,6 +61,7 @@ fn get_visible_tree_indices(rows: &Vec<Vec<i32>>) -> HashSet<usize> {
     vis_trees
 }
 
+#[allow(dead_code)]
 pub fn problem1() {
     let rows = read_input();
     let vis_trees = get_visible_tree_indices(&rows);
@@ -89,6 +90,7 @@ fn get_viewing_score_at(row_idx: usize, col_idx: usize, rows: &Vec<Vec<i32>>) ->
     score_right * score_left * score_top * score_bottom
 }
 
+#[allow(dead_code)]
 pub fn problem2() {
     let rows = read_input();
     let num_rows = rows.len();

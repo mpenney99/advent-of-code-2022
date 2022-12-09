@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use regex::Regex;
-use std::{fs, io, cell::RefCell};
+use std::cell::RefCell;
 
 use crate::utils::*;
 
@@ -41,23 +41,22 @@ fn stacks() -> Vec<RefCell<Vec<&'static str>>> {
     ]
 }
 
-fn parse_commands(it: &mut io::Lines<io::BufReader<fs::File>>) -> Vec<Command> {
-    it.map(|line| {
-        let text = line.unwrap();
-        let captures = RE_COMMAND.captures(&text).expect("invalid command");
-        let amount: usize = captures.get(1).unwrap().as_str().parse().unwrap();
-        let from: usize = captures.get(2).unwrap().as_str().parse().unwrap();
-        let to: usize = captures.get(3).unwrap().as_str().parse().unwrap();
-        Command { amount, from, to }
-    })
-    .collect()
+fn read_commands() -> Vec<Command> {
+    read_lines("./src/day5_input")
+        .map(|line| {
+            let captures = RE_COMMAND.captures(&line).expect("invalid command");
+            let amount: usize = captures.get(1).unwrap().as_str().parse().unwrap();
+            let from: usize = captures.get(2).unwrap().as_str().parse().unwrap();
+            let to: usize = captures.get(3).unwrap().as_str().parse().unwrap();
+            Command { amount, from, to }
+        })
+        .collect()
 }
 
 fn problem(exec_command: fn(&mut Vec<RefCell<Vec<&str>>>, command: &Command)) {
-    let mut lines = read_lines("./src/day5_input");
     let mut stacks = stacks();
-    let commands = parse_commands(&mut lines);
 
+    let commands = read_commands();
     for command in commands {
         exec_command(&mut stacks, &command);
     }
@@ -70,10 +69,17 @@ fn problem(exec_command: fn(&mut Vec<RefCell<Vec<&str>>>, command: &Command)) {
     println!("{}", result);
 }
 
+#[allow(dead_code)]
 pub fn problem1() {
     problem(|stacks, command| {
-        let mut from_stack =  stacks.get(command.from - 1).expect("invalid index").borrow_mut();
-        let mut to_stack = stacks.get(command.to - 1).expect("invalid index").borrow_mut();
+        let mut from_stack = stacks
+            .get(command.from - 1)
+            .expect("invalid index")
+            .borrow_mut();
+        let mut to_stack = stacks
+            .get(command.to - 1)
+            .expect("invalid index")
+            .borrow_mut();
 
         for _ in 0..command.amount {
             if let Some(item) = from_stack.pop() {
@@ -83,10 +89,17 @@ pub fn problem1() {
     });
 }
 
+#[allow(dead_code)]
 pub fn problem2() {
     problem(|stacks, command| {
-        let mut from_stack =  stacks.get(command.from - 1).expect("invalid index").borrow_mut();
-        let mut to_stack = stacks.get(command.to - 1).expect("invalid index").borrow_mut();
+        let mut from_stack = stacks
+            .get(command.from - 1)
+            .expect("invalid index")
+            .borrow_mut();
+        let mut to_stack = stacks
+            .get(command.to - 1)
+            .expect("invalid index")
+            .borrow_mut();
 
         let mut items: Vec<&str> = Vec::new();
         for _ in 0..command.amount {

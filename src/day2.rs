@@ -65,17 +65,16 @@ fn player_shape(opp_shape: &Shape, input: &str) -> Shape {
     }).unwrap()
 }
 
+#[allow(dead_code)]
 pub fn problem2() {
     let mut total_score: u32 = 0;
 
     read_lines("./src/day2_input")
         .for_each(|line| {
-            if let Ok(text) = line {
-                let mut parts = text.split(" ");
-                let opp_shape: Shape = opponent_shape(parts.next().unwrap());
-                let player_shape: Shape = player_shape(&opp_shape, parts.next().unwrap());
-                total_score += round_score(player_shape, opp_shape)
-            }
+            let mut parts = line.split(" ");
+            let opp_shape: Shape = opponent_shape(parts.next().unwrap());
+            let player_shape: Shape = player_shape(&opp_shape, parts.next().unwrap());
+            total_score += round_score(player_shape, opp_shape);
         });
 
     println!("{}", total_score);

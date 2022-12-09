@@ -27,8 +27,7 @@ fn read_file_tree() -> Rc<Node> {
     let mut is_listing = false;
 
     for line in read_lines("./src/day7_input") {
-        let text: String = line.expect("error reading line");
-        let parts: Vec<&str> = text.split(" ").collect();
+        let parts: Vec<&str> = line.split(" ").collect();
 
         if parts[0] == "$" {
             is_listing = false;
@@ -97,6 +96,7 @@ fn get_dir_sizes(node: &Node, dir_sizes: &mut Vec<u32>) -> u32 {
     size
 }
 
+#[allow(dead_code)]
 pub fn problem1() {
     let tree = read_file_tree();
     let mut dir_sizes: Vec<u32> = Vec::new();
@@ -105,6 +105,7 @@ pub fn problem1() {
     println!("{}", total);
 }
 
+#[allow(dead_code)]
 pub fn problem2() {
     let tree = read_file_tree();
     let mut dir_sizes: Vec<u32> = Vec::new();

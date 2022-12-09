@@ -4,9 +4,7 @@ use crate::utils::*;
 
 pub fn run(marker_length: usize) {
     read_lines("./src/day6_input").for_each(|line| {
-        let Ok(text) = line else { return; };
-
-        let chars: Vec<char> = text.chars().collect();
+        let chars: Vec<char> = line.chars().collect();
         let mut set: HashSet<char> = HashSet::new();
 
         for i in 0..chars.len() {
@@ -24,10 +22,12 @@ pub fn run(marker_length: usize) {
     });
 }
 
+#[allow(dead_code)]
 pub fn problem1() {
     run(4);
 }
 
+#[allow(dead_code)]
 pub fn problem2() {
     run(14);
 }
