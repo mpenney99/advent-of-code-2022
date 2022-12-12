@@ -8,36 +8,58 @@ struct Cell {
     y: i32,
 }
 
-pub fn problem1() {
-    let mut tail_positions = HashSet::<Cell>::new();
-    let mut head_pos = Cell { x: 0, y: 0 };
-    let mut tail_pos = head_pos.clone();
-    tail_positions.insert(tail_pos.clone());
+fn problem(tail_size: usize) -> usize {
+    let mut visited_cells = HashSet::<Cell>::new();
+    let mut head = Cell { x: 0, y: 0 };
+    let mut tail: Vec<Cell> = (0..tail_size).map(|_| head.clone()).collect();
+    visited_cells.insert(tail[tail.len() - 1].clone());
 
     for line in read_lines("./src/day9_input") {
         let parts: Vec<&str> = line.split(" ").collect();
         let dir: &str = parts[0];
         let count: u32 = parts[1].parse().expect("not a number");
 
-        for _i in 0..count {
-            let next_head_pos: Cell = match dir {
-                "U" => Cell { x: head_pos.x, y: head_pos.y + 1 },
-                "D" => Cell { x: head_pos.x, y: head_pos.y - 1 },
-                "R" => Cell { x: head_pos.x + 1, y: head_pos.y },
-                "L" => Cell { x: head_pos.x - 1, y: head_pos.y },
+        for _ in 0..count {
+            head = match dir {
+                "U" => Cell { x: head.x, y: head.y + 1 },
+                "D" => Cell { x: head.x, y: head.y - 1 },
+                "R" => Cell { x: head.x + 1, y: head.y },
+                "L" => Cell { x: head.x - 1, y: head.y },
                 _ => {
                     unimplemented!("unrecognized dir {}", dir);
                 }
             };
 
-            if (tail_pos.x - next_head_pos.x).abs() > 1 || (tail_pos.y - next_head_pos.y).abs() > 1 {
-                tail_pos = head_pos.clone();
-                tail_positions.insert(tail_pos.clone());
+            let mut prev: &Cell = &head;
+
+            for i in 0..tail_size {
+                let tail_cell = &tail[i];
+                let diff_x: i32 = prev.x - tail_cell.x;
+                let diff_y: i32 = prev.y - tail_cell.y;
+
+                if diff_x.abs() > 1 || diff_y.abs() > 1 {
+                    tail[i] = Cell {
+                        x: tail_cell.x + diff_x.signum(),
+                        y: tail_cell.y + diff_y.signum()
+                    };
+                }
+                
+                prev = &tail[i];
             }
 
-            head_pos = next_head_pos;
+            visited_cells.insert(tail[tail.len() - 1].clone());
         }
     }
 
-    println!("{}", tail_positions.len());
+    visited_cells.len()
+}
+
+#[allow(dead_code)]
+pub fn problem1() {
+    println!("{}", problem(1));
+}
+
+#[allow(dead_code)]
+pub fn problem2() {
+    println!("{}", problem(9));
 }
