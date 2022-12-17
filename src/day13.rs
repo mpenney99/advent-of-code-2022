@@ -132,7 +132,6 @@ pub fn problem1() {
 #[allow(dead_code)]
 pub fn problem2() {
     let mut packets = read_packets();
-
     let divider_1 = Packet::List(vec![Packet::List(vec![Packet::Value(2)])]);
     let divider_2 = Packet::List(vec![Packet::List(vec![Packet::Value(6)])]);
 
