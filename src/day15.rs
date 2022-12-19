@@ -21,9 +21,8 @@ fn get_distance(from: Cell, to: Cell) -> i32 {
 }
 
 fn parse_sensor_reading(line: &str) -> Option<Sensor> {
-    static REGEX: Lazy<Regex> = Lazy::<Regex>::new(|| {
-        Regex::new(r"Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)")
-            .unwrap()
+    static REGEX: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(r"Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)").unwrap()
     });
 
     let captures = REGEX.captures(line)?;
@@ -124,10 +123,5 @@ mod tests {
                 dist: 4934230
             })
         )
-    }
-
-    #[test]
-    fn test() {
-        problem2();
     }
 }
